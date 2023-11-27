@@ -1,10 +1,14 @@
 package models
 
+import (
+	"time"
+)
+
 /* Мера сохранения */
 type Conservation struct {
 	ID			int
 	Name		string
 	Description	string
-	Start		string	//начало принятия мер
-	End			string	//конец принятия мер
+	Start		time.Time	//начало принятия мер
+	End			time.Time	//конец принятия мер
 }

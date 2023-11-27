@@ -1,9 +1,13 @@
 package models
 
+import (
+	"database/sql"
+)
+
 /* Публикация */
 type Publication struct {
 	ID			int
-	Link		string
-	Biblio		string	//библиографическое описание
-	Description	string
+	Link		sql.NullString
+	Biblio		string			//библиографическое описание
+	Description	sql.NullString
 }

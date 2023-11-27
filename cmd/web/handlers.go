@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"GoTest/pkg/models/mysql"
 	"strconv"
+	"errors"
 )
 
 // "GoTest/pkg/models"
@@ -147,8 +148,7 @@ func (app *application) newplant(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 	}
 
-	
-
+	//расшифровка полученных данных
 	sys :=  mysql.Systematic {Domain: plantDataInput.Domain, Kingdom: plantDataInput.Kingdom,
 							  Class: plantDataInput.Class, Order: plantDataInput.Order, 
 							  Family: plantDataInput.Family, Genus: plantDataInput.Genus,
@@ -170,10 +170,19 @@ func (app *application) newplant(w http.ResponseWriter, r *http.Request) {
 		saveMeasures = append(saveMeasures, mysql.SaveMeasure{Name: elem.SaveName, Description: elem.Description, 
 						 Start: elem.StartDate, End: elem.EndDate})
 	}
+
+	//добавление (обновление) таксона
 	err = app.dbPlantlist.InsertPlant(sys, plantDataInput.Status, plantDataInput.Description,
-									   plantDataInput.Publications, places, saveMeasures)
+									   plantDataInput.Publications, places, saveMeasures,
+									   plantDataInput.Name, plantDataInput.LatinName)
 	if err != nil {
-		app.serverError(w, err)
+		if errors.Is(err, mysql.ErrNoRecord) {
+			app.notFound(w)
+		} else {
+			app.serverError(w, err)
+		}
+	} else {
+		app.infoLog.Printf("Добавлена / обновлена информация о таксоне <<%v>>", plantDataInput.Name)
 	}
 }
 // type WeatherDataInput struct {

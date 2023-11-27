@@ -22,7 +22,7 @@ type application struct {
 func main() {
 	//флаги командной строки
 	addr := flag.String("addr", ":3000", "Сетевой адрес HTTP")
-    dbAddr := flag.String("dbAddr", "root:@tcp(127.0.0.1:3306)/plantlist_db", 
+    dbAddr := flag.String("dbAddr", "root:@tcp(127.0.0.1:3306)/plantlist_db?parseTime=true", 
                                                             "Сетевой адрес базы данных")
 	dbDriverName := flag.String("dbName", "mysql", "Название базы данных (по умолчанию mysql)")
 	flag.Parse()

@@ -11,8 +11,8 @@ type Terrain struct {
 /* GPS-координата */
 type GPSPoint struct {
 	ID			int
-	latitude	float64
-	longitude	float64
+	Latitude	float64
+	Longitude	float64
 }
 
 /* Страна */

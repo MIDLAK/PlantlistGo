@@ -7,4 +7,12 @@ type Plant struct {
 	LatinName		string
 	Description		string
 	Image			string	//путь к файлу
+	IDClass			int
+	IDDepartment	int
+	IDDomain		int
+	IDFamily		int
+	IDGenus			int
+	IDKingdom		int
+	IDOrder			int
+	IDStatus		int
 }
