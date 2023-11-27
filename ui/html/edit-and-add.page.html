@@ -1,0 +1,184 @@
+{{template "base" .}}
+
+{{define "title"}}Добавление растения{{end}}
+
+{{define "main"}}
+
+<div class="container">
+    <div class="row justify-content-around">
+
+        <figure class="figure col-md-4">
+            <label class="form-label" for="customFile">Выберите файл изображения</label>
+            <input type="file" class="form-control" id="customFile" />
+            <figcaption class="figure-caption"> <input type="email" class="form-control" id="plantName" placeholder="Название растения (рус.)"></figcaption>
+            <figcaption class="figure-caption"> <input type="email" class="form-control" id="plantLatinName" placeholder="Название растения (лат.)"></figcaption>
+        </figure>
+
+
+        <div class="col-md-7 alert alert-success" role="alert">
+            <h4 class="alert-heading">Систематика</h4>
+            <ul>
+
+                <li><strong>Домен</strong></li>
+                <ul>
+                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantDomain">
+                </ul>
+
+                <li><strong>Царство</strong></li>
+                <ul>
+                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantKingdom">
+                </ul>
+
+                <li><strong>Отдел</strong></li>
+                <ul>
+                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantDepartment">
+                </ul>
+
+                <li><strong>Класс</strong></li>
+                <ul>
+                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantClass">
+                </ul>
+
+                <li><strong>Порядок</strong></li>
+                <ul>
+                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantOrder">
+                </ul>
+
+                <li><strong>Семейство</strong></li>
+                <ul>
+                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantFamily">
+                </ul>
+
+                <li><strong>Род</strong></li>
+                <ul>
+                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantGenus">
+                </ul>
+            </ul>
+        </div>
+    </div>
+
+
+    <hr>
+
+    <div class="alert alert-success col-md-auto" role="alert">
+        <h4 class="alert-heading">Описание</h4>
+        <textarea class="form-control" id="plantDescription" rows="3"></textarea>
+    </div>
+
+    <div class="row justify-content-around">
+        <div class="col-md-5 alert alert-success" role="alert">
+            <h4 class="alert-heading">Места обитания</h4>
+
+            <ul id="placeUL">
+
+            </ul>
+
+            <!-- <h5 class="alert-heading">Страна</h5>
+            <input class="form-control" type="text" placeholder="" id="country">
+
+            <h5 class="alert-heading">Город</h5>
+            <input class="form-control" type="text" placeholder="" id="city">
+
+            <h5 class="alert-heading">Местность</h5>
+            <input class="form-control" type="text" placeholder="" id="locality"> -->
+
+            <h5 class="alert-heading">Географическая координата</h5>
+            <input class="form-control" type="number" min="-90" max="90" placeholder="широта" id="gpsLatitude">
+            <input class="form-control" type="number" min="-180" max="180" placeholder="долгота" id="gpsLongitude">
+
+            <p></p>
+            <div class="col-md-4">
+                <button class="btn btn-lg btn-primary btn-block" type="submit" id="placeButton">Добавить</button>
+            </div>
+
+            <!-- <script>
+                var toggler = document.getElementsByClassName("caret");
+                var i;
+
+                for (i = 0; i < toggler.length; i++) {
+                    toggler[i].addEventListener("click", function () {
+                        this.parentElement.querySelector(".nested").classList.toggle("active");
+                        this.classList.toggle("caret-down");
+                    });
+                }
+            </script> -->
+
+        </div>
+
+        <div class="col-md-6">
+            <div class="row-2 justify-content-around">
+                <div class="col-12 alert alert-success" role="alert">
+                    <h4 class="alert-heading">Статус</h4>
+
+                    <div class="form-group">
+                        <select class="form-control" id="selectStatus">
+                            <option>Вероятно исчезнувшие</option>
+                            <option>Находящиеся под угрозой исчезновения</option>
+                            <option>Сокращающиеся в численности</option>
+                            <option>Редкие</option>
+                            <option>Восстанавливаемые и восстанавливающиеся</option>
+                            <option selected>Встречающиеся</option>
+                            <option>Встречающиеся слишком часто</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12 alert alert-success" role="alert">
+                    <h4 class="alert-heading">Меры сохранения</h4>
+                    <ul id="saveUL">
+
+                    </ul>
+
+                    <h5 class="alert-heading">Название</h5>
+                    <input class="form-control" type="text" placeholder="" id="saveName">
+
+                    <h5 class="alert-heading">Описание</h5>
+                    <div class="form-group">
+                        <textarea class="form-control" id="saveDescription" rows="3"></textarea>
+                    </div>
+
+                    <h5 class="alert-heading">Дата начала</h5>
+                    <div class="form-group">
+                        <input class="form-control" type="date" id="startDate" name="saveDate" min="1500-01-01" max="3000-12-31">
+                    </div>
+
+                    <h5 class="alert-heading">Дата окончания</h5>
+                    <div class="form-group">
+                        <input class="form-control" type="date" id="endDate" name="saveDate" min="1500-01-01" max="3000-12-31">
+                    </div>
+
+                    <p></p>
+                    <div class="col-md-4">
+                        <button class="btn btn-lg btn-primary btn-block" type="submit" id="saveMeasureButton">Добавить</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+    <div class="alert alert-success" role="alert">
+        <h4 class="alert-heading">Публикации</h4>
+        <div class="row">
+            <div class="col-md-12">
+                <ul id="publicationsUL">
+
+                </ul>
+                <input class="form-control" type="text" placeholder="" id="publications">
+            </div>
+            <p></p>
+            <div class="col-md-4">
+                <button class="btn btn-lg btn-primary btn-block" type="submit" id="publicationsButton">Добавить</button>
+            </div>
+
+        </div>
+    </div>
+    <button class="btn btn-lg btn-primary btn-block" type="submit" id="plantSubmitButton">Принять</button>
+
+</div>
+
+<script type="text/javascript" src="/static/js/add_or_edit_plant.js"></script>
+{{end}}

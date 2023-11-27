@@ -1,0 +1,16 @@
+{{define "card"}}
+      <div class="col">
+        <div class="card border-success mb-3 h-100" style="max-width: 18rem;">
+          <img src="/img/Cladonia.jpg" alt="" class="card-img-top">
+          <!-- <div class="card-header">Header</div> -->
+          <div class="card-body text-success">
+              <h5 class="card-title">{{ .PlantName }}</h5>
+              <p class="card-text">{{ .PlantText }}</p>
+          </div>
+
+          <div class="card-footer">
+            <a href="details.html" class="btn btn-primary">Подробнее</a>
+          </div>
+        </div>
+      </div>
+{{end}}
