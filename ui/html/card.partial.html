@@ -1,15 +1,27 @@
 {{define "card"}}
       <div class="col">
         <div class="card border-success mb-3 h-100" style="max-width: 18rem;">
-          <img src="/img/Cladonia.jpg" alt="" class="card-img-top">
+          <img src="/static/img/deciduous_tree.svg" alt="" class="card-img-top">
           <!-- <div class="card-header">Header</div> -->
-          <div class="card-body text-success">
-              <h5 class="card-title">{{ .PlantName }}</h5>
-              <p class="card-text">{{ .PlantText }}</p>
+          <div class="card-body text-success truncate">
+              <h5 class="card-title" id="{{ .Name }}">{{ .Name }}</h5>
+              <p class="card-text">{{ .Description }}</p>
           </div>
 
           <div class="card-footer">
-            <a href="details.html" class="btn btn-primary">Подробнее</a>
+            <div class="btn-wrapper text-center d-flex justify-content-between">
+              <form action="/about" method="post">
+                <!-- <a href="/about" class="btn btn-primary  btn-sm">Подробнее</a> -->
+                <!-- на сервер отправляется имя таксона для подстановки в форму -->
+                <button class="btn btn-primary btn-sm" name="plant-name-add" value="{{ .Name }}" type="submit" id="aboutButton">Подробнее</button>
+              </form>
+
+              <form action="/edit" method="post">
+                <!-- <a href="/about" class="btn btn-primary  btn-sm">Подробнее</a> -->
+                <!-- на сервер отправляется имя таксона для подстановки в форму -->
+                <button class="btn btn-outline-warning btn-sm" name="plant-name-edit" value="{{ .Name }}" type="submit" id="editButton">Редактировать</button>
+              </form>
+            </div>            
           </div>
         </div>
       </div>

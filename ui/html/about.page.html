@@ -1,0 +1,110 @@
+{{template "base" .}}
+
+{{define "title"}}Информация о растении{{end}}
+
+{{define "main"}}
+
+<div class="container">
+    <div class="row justify-content-around">
+
+        <figure class="figure col-md-4">
+            <!-- <label class="form-label" for="customFile">Выберите файл изображения</label> -->
+            <img src="/static/img/deciduous_tree.svg" class="figure-img img-fluid rounded" width="400" height="500" alt="...">
+            <figcaption class="figure-caption text-center">{{ .Name }}</figcaption>
+            <figcaption class="figure-caption text-center">{{ .LatinName }}</figcaption>
+        </figure>
+
+
+        <div class="col-md-7 alert alert-success" role="alert" style="background-color: #00FFD5;">
+            <h4 class="alert-heading">Систематика</h4>
+            <ul>
+
+                <li><strong>Домен</strong></li>
+                <ul>
+                    <p id="domain"> {{ .Domain }}</p>
+                </ul>
+
+                <li><strong>Царство</strong></li>
+                <ul>
+                    <p id="kingdom"> {{ .Kingdom }}</p>
+                </ul>
+
+                <li><strong>Отдел</strong></li>
+                <ul>
+                    <p id="department"> {{ .Department }}</p>
+                </ul>
+
+                <li><strong>Класс</strong></li>
+                <ul>
+                    <p id="class"> {{ .Class }}</p>
+                </ul>
+
+                <li><strong>Порядок</strong></li>
+                <ul>
+                    <p id="order"> {{ .Order }}</p>
+                </ul>
+
+                <li><strong>Семейство</strong></li>
+                <ul>
+                    <p id="family"> {{ .Family }}</p>
+                </ul>
+
+                <li><strong>Род</strong></li>
+                <ul>
+                    <p id="genus"> {{ .Genus }}</p>
+                </ul>
+            </ul>
+        </div>
+    </div>
+
+
+    <hr>
+
+    <div class="alert alert-success col-md-auto" role="alert" style="background-color: #00FFD5;">
+        <h4 class="alert-heading">Описание</h4>
+        <p> {{ .Description }}</div></p>
+    </div>
+
+    
+    <div class="row justify-content-around">
+        
+        <div class="col-md-5 alert alert-success" role="alert" style="background-color: #00FFD5;">
+            <h4 class="alert-heading">Места обитания</h4>
+
+            <ul id="placeUL">
+                {{range .Places}} {{template "place" . }} {{end}}
+            </ul>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="row-2 justify-content-around"> 
+                <div class="col-12 alert alert-success" role="alert" style="background-color: #00FFD5;">
+                    <h4 class="alert-heading">Статус</h4>
+
+                    <p> {{ .Status }}</p>
+                </div>
+
+                <div class="col-12 alert alert-success" role="alert" style="background-color: #00FFD5;">
+                    <h4 class="alert-heading">Меры сохранения</h4>
+                    <ul id="saveUL">
+                        {{range .SaveMeasures}} <li> <<{{ .Description }}>> с {{ .Start }} до {{ .End }} </li> {{end}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-success" role="alert" style="background-color: #00FFD5;">
+        <h4 class="alert-heading">Публикации</h4>
+        <div class="row">
+            <div class="col-md-12">
+                <ul id="publicationsUL">
+                    {{range .Publications }} <li> {{ .}} </li> {{end}}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/js/about.js"></script>
+{{end}}

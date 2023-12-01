@@ -4,9 +4,8 @@ import (
 	"database/sql"
 	"GoTest/pkg/models"
 	"errors"
+	"time"
 )
-
-//"time"
 
 //обёртка пула подключений
 type PlantlistModel struct {
@@ -36,11 +35,19 @@ type SaveMeasure struct {
 	End			string
 }
 
-var ErrNoRecord = errors.New("подходящей записи не найдено")
+var ErrNoRecord = errors.New("Подходящей записи не найдено")
 
 //сохранение растения в базу данных (используются плейсхолдеры для защиты от SQL-инъекций)
 func (plm *PlantlistModel) InsertPlant(sys Systematic, status string, description string,
 	publications []string, places []GPS, saveMeasures []SaveMeasure, rusName string, latinName string) error {
+
+
+		plantFromDB, err := plm.GetAboutPlant(rusName)
+		//если такое растение уже существует, то разрыв связей
+		//с геогр. координатами, публикациями и мерами сохранения
+		if err == nil {
+			plm.deletePlant(plantFromDB.ID)
+		}
 
 		//добавление новой систематики
 		if _, err := plm.InsertClass(sys.Class); err != nil {
@@ -174,6 +181,57 @@ func (plm *PlantlistModel) InsertPlant(sys Systematic, status string, descriptio
 		return nil
 }
 
+
+//изменение данных по растению в базе данных
+// func (plm *PlantlistModel) UpdatePlant(sys Systematic, status string, description string,
+// 	publications []string, places []GPS, saveMeasures []SaveMeasure, rusName string, latinName string) error {
+	
+// 	//получение данных по растению
+// 	plant, err := plm.GetAboutPlant(rusName)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	//разрыв связей с известными параметрами
+// 	err = plm.deletePlant(rusName)
+// 	if err != nil {
+// 		return err
+// 	}
+
+
+
+// 	return nil
+// }
+
+//удаление растения
+func (plm *PlantlistModel) deletePlant(plantID int) error {
+	//разрыв связей с координатам
+	_, err := plm.DB.Exec("DELETE FROM `plan-gps` WHERE id_plant=?", plantID)
+	if err != nil {
+		return err
+	}
+
+	//разрыв связей с публикациями
+	_, err = plm.DB.Exec("DELETE FROM `plant-publlication` WHERE id_plant=?", plantID)
+	if err != nil {
+		return err
+	}
+
+	//разрыв связей с мерами сохранения
+	_, err = plm.DB.Exec("DELETE FROM `plant-conservatioin` WHERE id_plant=?", plantID)
+	if err != nil {
+		return err
+	}
+
+	//удаление растения
+	_, err = plm.DB.Exec("DELETE FROM plant WHERE id=?", plantID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 //добавление нового класса в базу данных
 func (plm *PlantlistModel) InsertClass(class string) (int64, error) {
 	result, err := plm.DB.Exec(`INSERT IGNORE INTO class (id, name) VALUES (NULL, ?);`, class)
@@ -207,6 +265,16 @@ func (plm *PlantlistModel) GetClass(className string) (*models.Class, error) {
 	}
 	
 	return class, nil
+}
+
+//обновление класса для растения
+func (plm *PlantlistModel) UpdateClass(className string) error {
+	_, err := plm.DB.Exec(`UPDATE class SET name=? WHERE name=?;`, className)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 //добавление нового отдела в базу данных
@@ -244,6 +312,16 @@ func (plm *PlantlistModel) GetDepartment(depName string) (*models.Department, er
 	return dep, nil
 }
 
+//обновление данных по отделу таксона
+func (plm *PlantlistModel) UpdateDepartment(depName string) error {
+	_, err := plm.DB.Exec(`UPDATE department SET name=? WHERE name=?;`, depName, depName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 //добавление нового домена в базу данных
 func (plm *PlantlistModel) InsertDomain(domain string) (int64, error) {
 	result, err := plm.DB.Exec(`INSERT IGNORE INTO domain (id, name) VALUES (NULL, ?);`, domain)
@@ -277,6 +355,16 @@ func (plm *PlantlistModel) GetDomain(domName string) (*models.Domain, error) {
 	}
 	
 	return dom, nil
+}
+
+//обновление данных по домену таксона
+func (plm *PlantlistModel) UpdateDomain(domName string) error {
+	_, err := plm.DB.Exec(`UPDATE domain SET name=? WHERE name=?;`, domName, domName)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 //добавление нового семейства в базу данных
@@ -314,6 +402,16 @@ func (plm *PlantlistModel) GetFamily(fmlName string) (*models.Family, error) {
 	return family, nil
 }
 
+//обновление данных по семейству таксона
+func (plm *PlantlistModel) UpdateFamily(famName string) error {
+	_, err := plm.DB.Exec(`UPDATE family SET name=? WHERE name=?;`, famName, famName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 //добавление нового рода в базу данных
 func (plm *PlantlistModel) InsertGenus(genus string) (int64, error) {
 	result, err := plm.DB.Exec(`INSERT IGNORE INTO genus (id, name) VALUES (NULL, ?);`, genus)
@@ -347,6 +445,16 @@ func (plm *PlantlistModel) GetGenus(genName string) (*models.Genus, error) {
 	}
 	
 	return gen, nil
+}
+
+//обновление данных по семейству таксона
+func (plm *PlantlistModel) UpdateGenus(genName string) error {
+	_, err := plm.DB.Exec(`UPDATE genus SET name=? WHERE name=?;`, genName, genName)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 //добавление нового царства в базу данных
@@ -384,6 +492,16 @@ func (plm *PlantlistModel) GetKingdom(kingdomName string) (*models.Kingdom, erro
 	return kingdom, nil
 }
 
+//обновление данных по семейству таксона
+func (plm *PlantlistModel) UpdateKingdom(kinName string) error {
+	_, err := plm.DB.Exec(`UPDATE kingdom SET name=? WHERE name=?;`, kinName, kinName)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 //добавление нового порядка в базу данных
 func (plm *PlantlistModel) InsertOrder(order string) (int64, error) {
 	//order - ключевое слово...
@@ -418,6 +536,16 @@ func (plm *PlantlistModel) GetOrder(orderName string) (*models.Order, error) {
 	}
 	
 	return order, nil
+}
+
+//обновление данных по семейству таксона
+func (plm *PlantlistModel) UpdateOrder(orderName string) error {
+	_, err := plm.DB.Exec("UPDATE `order` SET name=? WHERE name=?;`, orderName, orderName")
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 //получение статуса растения
@@ -501,7 +629,7 @@ func (plm *PlantlistModel) GetPublication(bibilio string) (*models.Publication, 
 }
 
 func (plm *PlantlistModel) InsertConservations(saveMeasures []SaveMeasure) error {
-	insertConservation := `INSERT INTO conservation (id, name, description, start_date, end_date) VALUES (NULL, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE id=id`
+	insertConservation := `INSERT IGNORE INTO conservation (id, name, description, start_date, end_date) VALUES (NULL, ?, ?, ?, ?)`
 	for _, measure := range saveMeasures {
 		if _, err := plm.DB.Exec(insertConservation, measure.Name, measure.Description, measure.Start, measure.End); err != nil {
 			return err
@@ -530,10 +658,6 @@ func (plm *PlantlistModel) GetConservation(consName string) (*models.Conservatio
 	return cons, nil						  
 }
 
-// func (PlantlistModel) GetAllPlants() {
-
-// }
-
 //возвращает растение по его рускоязычному названию
 func (plm *PlantlistModel) GetPlant(rusName string) (*models.Plant, error) {
 	selectPlant := `SELECT id, russian_name, latin_name, description, id_class, id_department, id_domain, id_family, id_genus, id_kingdom, id_orger, id_status
@@ -556,3 +680,299 @@ func (plm *PlantlistModel) GetPlant(rusName string) (*models.Plant, error) {
 	
 	return plant, nil
 }
+
+//возвращает только название и описание для растений
+func (plm *PlantlistModel) GetPlantsPreview() ([]*models.PlantPreview, error) {
+	selectPreview := `SELECT plant.russian_name, plant.description FROM plant;`
+	rows, err := plm.DB.Query(selectPreview)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	//просмотр полученных данных
+	var previews []*models.PlantPreview
+	for rows.Next() {
+		prv := &models.PlantPreview{}
+		err = rows.Scan(&prv.Name, &prv.Description)
+		if err != nil {
+			return nil, err
+		}
+
+		previews = append(previews, prv)
+	}
+
+	//дополнительная проверка
+	if err = rows.Err(); err != nil {
+	 	return nil, err
+	}
+
+	return previews, nil
+}
+
+//как это будет получено из базы
+type AboutPlantRow struct {
+	ID				int
+	RusName			string
+	LatName			string
+	Description		string
+	Class			string
+	Department		string
+	Domain			string
+	Family			string
+	Genus			string
+	Kingdom			string
+	Order			string
+	Status			string
+	Latitude		sql.NullFloat64
+	Longitude		sql.NullFloat64
+	Conservation	sql.NullString
+	ConsDesc		sql.NullString
+	Start			sql.NullTime
+	End				sql.NullTime
+	Biblio			sql.NullString
+}
+
+//чем полученные из БД данные должны стать
+type Place struct {
+	Latitude	float64
+	Longitude	float64
+}
+
+type SM struct {
+	Name		string
+	Description string
+	Start   	time.Time
+	End     	time.Time
+}
+
+type AboutPlant struct {
+	ID				int
+	Name         	string
+	LatinName		string
+	Domain       	string
+	Kingdom      	string
+	Department   	string
+	Class        	string
+	Order        	string
+	Family       	string
+	Genus        	string
+	Status       	string
+	Description  	string
+	Publications 	[]string 
+	Places       	[]Place					 
+	SaveMeasures 	[]SM						 
+}
+
+//TODO: тут творится кошмар
+func (plm *PlantlistModel) GetAboutPlant(rusname string) (*AboutPlant, error) {
+	selectAboutPlants := "SELECT p.id, p.russian_name AS rus, p.latin_name, p.description, cls.name AS class, dep.name AS department, dom.name AS domain, f.name AS family, g.name AS genus, k.name AS kingdom, ord.name AS `order`, s.name AS `status`,  gps.latitude, gps.longitude, cons.name AS conservation, cons.description, cons.start_date, cons.end_date, pub.bibliographic_description AS biblio FROM plant AS p LEFT JOIN class 	 AS cls	 ON p.id_class = cls.id LEFT JOIN department AS dep  ON p.id_department = dep.id LEFT JOIN domain 	 AS dom	 ON p.id_domain = dom.id LEFT JOIN family 	 AS f 	 ON p.id_family = f.id LEFT JOIN genus 	 AS g 	 ON p.id_genus = g.id LEFT JOIN kingdom 	 AS k 	 ON p.id_kingdom = k.id LEFT JOIN `order` 	 AS ord	 ON p.id_orger = ord.id LEFT JOIN `status`	 AS s	 ON p.id_status = s.id LEFT JOIN `plan-gps` AS pgps ON p.id = pgps.id_plant LEFT JOIN gps ON gps.id = pgps.id_gps LEFT JOIN `plant-conservatioin` AS pcons ON  p.id = pcons.id_plant LEFT JOIN conservation			AS cons  ON  cons.id = pcons.id_conservation LEFT JOIN `plant-publlication`  AS ppub	 ON	p.id = ppub.id_plant LEFT JOIN publlication			AS pub 	 ON pub.id = ppub.id_publlication;"
+	
+	rows, err := plm.DB.Query(selectAboutPlants)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	
+
+	//просмотр полученных данных
+	var plantRows []*AboutPlantRow
+	for rows.Next() {
+		plt := &AboutPlantRow{}
+		err = rows.Scan(&plt.ID, &plt.RusName, &plt.LatName,
+			&plt.Description, &plt.Class, &plt.Department,
+			&plt.Domain, &plt.Family, &plt.Genus, &plt.Kingdom,
+			&plt.Order, &plt.Status, &plt.Latitude, &plt.Longitude,
+			&plt.Conservation, &plt.ConsDesc, &plt.Start, &plt.End, 
+			&plt.Biblio)
+		if err != nil {
+			return nil, err
+		}
+
+		plantRows = append(plantRows, plt)
+	}
+
+	//преобразование данных
+	prevID := 0
+	var aboutPlants []*AboutPlant
+	for _, r := range plantRows {
+		//если новое растение
+		if r.ID != prevID {
+			prevID = r.ID
+			//проверка, что описание такого растения ещё не начато
+			for _, about := range aboutPlants {
+				//если начато, то добавляем данные
+				if about.ID == r.ID {
+					if r.Biblio.Valid {
+						flag := true
+						for _, pub := range about.Publications {
+							if pub == r.Biblio.String {
+								flag = false
+							}
+						}
+
+						if flag {
+							about.Publications = append(about.Publications, r.Biblio.String)
+						}
+					}
+					
+					if r.Latitude.Valid {
+						flag := true
+						for _, place := range about.Places {
+							if place.Latitude == r.Latitude.Float64 && place.Longitude == r.Longitude.Float64  {
+								flag = false
+							}
+						}
+
+						if flag {
+							about.Places = append(about.Places, Place{Latitude: float64(r.Latitude.Float64), 
+															Longitude: float64(r.Longitude.Float64)})
+						}
+					}
+
+					if r.Conservation.Valid && r.Start.Valid && r.End.Valid {
+						flag := true
+						for _, conservation := range about.SaveMeasures {
+							if conservation.Name == r.Conservation.String {
+								flag = false
+							}
+						}
+
+						if flag {
+						about.SaveMeasures = append(about.SaveMeasures, SM{Name: r.Conservation.String,
+																	Description: r.ConsDesc.String,
+																	Start: r.Start.Time,
+																	End:	r.End.Time})
+						}
+					}
+				}
+			}
+
+			biblio := ""
+			if r.Biblio.Valid {
+				biblio = r.Biblio.String 
+			}
+			latitude := 0.0
+			longitude := 0.0
+			if r.Latitude.Valid && r.Longitude.Valid {
+				latitude = r.Latitude.Float64
+				longitude = r.Longitude.Float64
+			}
+			consName := ""
+			if r.Conservation.Valid {
+				consName = r.Conservation.String
+			}
+			description := ""
+			if r.ConsDesc.Valid {
+				description = r.ConsDesc.String
+			}
+			
+
+			
+			aboutPlants = append(aboutPlants, &AboutPlant{ID: r.ID, Name: r.RusName, LatinName: r.LatName,
+								Domain: r.Domain, Kingdom: r.Kingdom, Department: r.Department,
+								Class: r.Class, Order: r.Order, Family: r.Family, Genus: r.Genus,
+								Status: r.Status, Description: r.Description, 
+								Publications: []string{biblio}, 
+								Places: []Place{{Latitude: latitude, Longitude: longitude}},
+								SaveMeasures: []SM{{Name: consName, Description: description,
+													End: r.End.Time, Start: r.Start.Time}}})
+		} else {
+			for _, about := range aboutPlants {
+				//если начато, то добавляем данные
+				if about.ID == r.ID {
+					if r.Biblio.Valid {
+						flag := true
+						for _, pub := range about.Publications {
+							if pub == r.Biblio.String {
+								flag = false
+							}
+						}
+
+						if flag {
+							about.Publications = append(about.Publications, r.Biblio.String)
+						}
+					}
+					
+					if r.Latitude.Valid {
+						flag := true
+						for _, place := range about.Places {
+							if place.Latitude == r.Latitude.Float64 && place.Longitude == r.Longitude.Float64  {
+								flag = false
+							}
+						}
+
+						if flag {
+							about.Places = append(about.Places, Place{Latitude: float64(r.Latitude.Float64), 
+															Longitude: float64(r.Longitude.Float64)})
+						}
+					}
+
+					if r.Conservation.Valid && r.Start.Valid && r.End.Valid {
+						flag := true
+						for _, conservation := range about.SaveMeasures {
+							if conservation.Name == r.Conservation.String {
+								flag = false
+							}
+						}
+
+						if flag {
+						about.SaveMeasures = append(about.SaveMeasures, SM{Name: r.Conservation.String,
+																	Description: r.ConsDesc.String,
+																	Start: r.Start.Time,
+																	End:	r.End.Time})
+						}
+					}
+				}
+			}
+		}
+	}
+
+	//дополнительная проверка
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	for _, elem := range aboutPlants {
+		if elem.Name == rusname {
+			return elem, nil
+		}
+	}
+
+	//если ничего не нашлось
+	return nil, ErrNoRecord
+}
+
+
+//очень страшно
+/*
+SELECT p.id, p.russian_name rus, p.latin_name, p.description, 
+cls.name AS class, dep.name AS department, dom.name AS domain, f.name AS family,
+g.name AS genus, k.name AS kingdom, ord.name AS `order`, s.name AS `status`, 
+gps.latitude, gps.longitude, cons.name AS conservation, cons.start_date, cons.end_date,
+pub.bibliographic_description AS biblio
+
+FROM plant AS p
+
+-- Систематика
+LEFT JOIN class 	 AS cls	 ON p.id_class = cls.id
+LEFT JOIN department AS dep  ON p.id_department = dep.id
+LEFT JOIN domain 	 AS dom	 ON p.id_domain = dom.id
+LEFT JOIN family 	 AS f 	 ON p.id_family = f.id
+LEFT JOIN genus 	 AS g 	 ON p.id_genus = g.id
+LEFT JOIN kingdom 	 AS k 	 ON p.id_kingdom = k.id
+LEFT JOIN `order` 	 AS ord	 ON p.id_orger = ord.id
+LEFT JOIN `status`	 AS s	 ON p.id_status = s.id
+
+-- GPS-координаты
+LEFT JOIN `plan-gps` AS pgps ON p.id = pgps.id_plant
+LEFT JOIN gps 				 ON gps.id = pgps.id_gps
+
+-- Меры защиты
+LEFT JOIN `plant-conservatioin` AS pcons ON  p.id = pcons.id_plant
+LEFT JOIN conservation			AS cons  ON  cons.id = pcons.id_conservation
+
+-- Публикации
+LEFT JOIN `plant-publlication`  AS ppub	 ON	p.id = ppub.id_plant
+LEFT JOIN publlication			AS pub 	 ON pub.id = ppub.id_publlication;	
+*/

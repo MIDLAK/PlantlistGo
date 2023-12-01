@@ -10,48 +10,48 @@
         <figure class="figure col-md-4">
             <label class="form-label" for="customFile">Выберите файл изображения</label>
             <input type="file" class="form-control" id="customFile" />
-            <figcaption class="figure-caption"> <input type="email" class="form-control" id="plantName" placeholder="Название растения (рус.)"></figcaption>
-            <figcaption class="figure-caption"> <input type="email" class="form-control" id="plantLatinName" placeholder="Название растения (лат.)"></figcaption>
+            <figcaption class="figure-caption"> <input type="email" required class="form-control" id="plantName" value="{{ .Name }}" placeholder="Название растения (рус.)"></figcaption>
+            <figcaption class="figure-caption"> <input type="email" required class="form-control" id="plantLatinName" value="{{ .LatinName }}" placeholder="Название растения (лат.)"></figcaption>
         </figure>
 
 
-        <div class="col-md-7 alert alert-success" role="alert">
+        <div class="col-md-7 alert alert-success" role="alert" style="background-color: #00FFD5;">
             <h4 class="alert-heading">Систематика</h4>
             <ul>
 
                 <li><strong>Домен</strong></li>
                 <ul>
-                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantDomain">
+                    <input class="form-control" type="text" required placeholder="Укажите домен" value="{{ .Domain }}" name="systematization" id="plantDomain">
                 </ul>
 
                 <li><strong>Царство</strong></li>
                 <ul>
-                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantKingdom">
+                    <input class="form-control" type="text" required placeholder="Укажите царство" value="{{ .Kingdom }}" name="systematization" id="plantKingdom">
                 </ul>
 
                 <li><strong>Отдел</strong></li>
                 <ul>
-                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantDepartment">
+                    <input class="form-control" type="text" required placeholder="Укажите отдел" value="{{ .Department }}" name="systematization" id="plantDepartment">
                 </ul>
 
                 <li><strong>Класс</strong></li>
                 <ul>
-                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantClass">
+                    <input class="form-control" type="text" required placeholder="Укажите класс" value="{{ .Class }}" name="systematization" id="plantClass">
                 </ul>
 
                 <li><strong>Порядок</strong></li>
                 <ul>
-                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantOrder">
+                    <input class="form-control" type="text" required placeholder="Укажите порядок" value="{{ .Order }}" name="systematization" id="plantOrder">
                 </ul>
 
                 <li><strong>Семейство</strong></li>
                 <ul>
-                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantFamily">
+                    <input class="form-control" type="text" required placeholder="Укажите семейство" value="{{ .Family }}" name="systematization" id="plantFamily">
                 </ul>
 
                 <li><strong>Род</strong></li>
                 <ul>
-                    <input class="form-control" type="text" placeholder="" name="systematization" id="plantGenus">
+                    <input class="form-control" type="text" required placeholder="Укажите род" value="{{ .Genus }}" name="systematization" id="plantGenus">
                 </ul>
             </ul>
         </div>
@@ -60,17 +60,17 @@
 
     <hr>
 
-    <div class="alert alert-success col-md-auto" role="alert">
+    <div class="alert alert-success col-md-auto" role="alert" style="background-color: #00FFD5;">
         <h4 class="alert-heading">Описание</h4>
-        <textarea class="form-control" id="plantDescription" rows="3"></textarea>
+        <textarea class="form-control" id="plantDescription" rows="3"> {{ .Description }} </textarea>
     </div>
 
     <div class="row justify-content-around">
-        <div class="col-md-5 alert alert-success" role="alert">
+        <div class="col-md-5 alert alert-success" role="alert" style="background-color: #00FFD5;">
             <h4 class="alert-heading">Места обитания</h4>
 
             <ul id="placeUL">
-
+                {{range $i, $a := .Places}} <li id="placeLi{{ $i }}"> широта: <span id="spanLat{{ $i }}">{{ .Latitude }}</span>, долгота: <span id="spanLong{{ $i }}">{{ .Longitude }}</span> <button type="button" class="btn btn-link" name="removePlacesButtons" id="removePlace{{ $i }}">удалить</button> </li> {{end}}  
             </ul>
 
             <!-- <h5 class="alert-heading">Страна</h5>
@@ -107,7 +107,7 @@
 
         <div class="col-md-6">
             <div class="row-2 justify-content-around">
-                <div class="col-12 alert alert-success" role="alert">
+                <div class="col-12 alert alert-success" role="alert" style="background-color: #00FFD5;">
                     <h4 class="alert-heading">Статус</h4>
 
                     <div class="form-group">
@@ -123,10 +123,10 @@
                     </div>
                 </div>
 
-                <div class="col-12 alert alert-success" role="alert">
+                <div class="col-12 alert alert-success" role="alert" style="background-color: #00FFD5;">
                     <h4 class="alert-heading">Меры сохранения</h4>
                     <ul id="saveUL">
-
+                        {{range $i, $a := .SaveMeasures}} <li id="conservLi{{ $i }}"> <<<span id="conservSpan{{ $i }}">{{ $a.Name }}</span>>> с {{ $a.Start }} до {{ $a.End }} <button type="button" class="btn btn-link" name="removeConservation" id="removeConservationButton{{ $i }}">удалить</button> </li> {{end}}
                     </ul>
 
                     <h5 class="alert-heading">Название</h5>
@@ -160,12 +160,12 @@
 
     </div>
 
-    <div class="alert alert-success" role="alert">
+    <div class="alert alert-success" role="alert" style="background-color: #00FFD5;">
         <h4 class="alert-heading">Публикации</h4>
         <div class="row">
             <div class="col-md-12">
                 <ul id="publicationsUL">
-
+                    {{range $i, $a := .Publications }} <li id="pubLi{{ $i }}"> <span id="pubSpan{{ $i }}">{{ .}}</span> <button type="button" class="btn btn-link" name="removePublicationsButtons" id="removePublication{{ $i }}">удалить</button> </li> {{end}}
                 </ul>
                 <input class="form-control" type="text" placeholder="" id="publications">
             </div>

@@ -16,3 +16,9 @@ type Plant struct {
 	IDOrder			int
 	IDStatus		int
 }
+
+//превью таксона
+type PlantPreview struct {
+	Name		string
+	Description	string
+}
