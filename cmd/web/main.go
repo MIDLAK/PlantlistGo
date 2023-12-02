@@ -10,6 +10,7 @@ import (
     _ "github.com/go-sql-driver/mysql"
     "database/sql"
 	"GoTest/pkg/models/mysql"
+	"html/template"
 )
 
 //зависимости приложения
@@ -17,6 +18,7 @@ type application struct {
 	errorLog 		*log.Logger
 	infoLog  		*log.Logger
 	dbPlantlist		*mysql.PlantlistModel
+	templateCache	map[string]*template.Template
 }
 
 func main() {
@@ -50,11 +52,18 @@ func main() {
 
     infoLog.Print("Соединение с базой данных установлено")
 
+	//инициализация кэша шаблонов
+	templateCache, err := newTemplateCache("./ui/html")
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	//инициализация структуры с зависимостями приложения
 	app := &application{
-		errorLog:	 errorLog,
-		infoLog:  	 infoLog,
-		dbPlantlist: &mysql.PlantlistModel{DB: db},
+		errorLog:	 	errorLog,
+		infoLog:  	 	infoLog,
+		dbPlantlist: 	&mysql.PlantlistModel{DB: db},
+		templateCache:	templateCache,
 	}
 
 	//инициализация новвй структуры http.Server

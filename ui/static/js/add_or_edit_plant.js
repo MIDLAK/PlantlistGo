@@ -3,7 +3,7 @@
 
 main()
 plantData = main()
-console.log(plantData.Promise)
+//console.log(plantData.Promise)
 
 async function main () {
 	return plantData = await getplant()
@@ -38,18 +38,14 @@ saveMeasureButton.addEventListener('click', function () {
 		endDate = '...'
 	}
 
-	// measures.push({"saveName": saveName,
-	// 			   "description": saveDescription, 
-	// 			   "startDate": startDate, 
-	// 			   "endDate": endDate})
-	plantData["saveMeasure"].push({"saveName": saveName,
-								"description": saveDescription, 
-								"startDate": startDate, 
-								"endDate": endDate})
+	plantData["saveMeasure"].push({"SaveName": saveName,
+								"Description": saveDescription, 
+								"StartDate": startDate, 
+								"EndDate": endDate})
 
 	elemNumber = Math.round(Math.random() * (1000000)) //не очень хорошо
-	console.log(elemNumber)
-	saveUL = document.getElementById('saveUL').insertAdjacentHTML('beforeend', '<li id="conservLi' + elemNumber + '"> <span id="conservSpan' + elemNumber + '">' + saveName + '</span> (с ' + startDate + ' по ' + endDate + ')' + '<button type="button" class="btn btn-link" name="removeConservation" id="removeConservationButton' + elemNumber + '">удалить</button>' + '</li>')
+	//console.log(elemNumber)
+	saveUL = document.getElementById('saveUL').insertAdjacentHTML('beforeend', '<li id="conservLi' + elemNumber + '"> <<<span id="conservSpan' + elemNumber + '">' + saveName + '</span>>> (с ' + startDate + ' по ' + endDate + ')' + '<button type="button" class="btn btn-link" name="removeConservation" id="removeConservationButton' + elemNumber + '">удалить</button>' + '</li>')
 	measuresButtons()
 })
 
@@ -66,7 +62,7 @@ placeButton.addEventListener('click', function () {
 		alert('Ошибка в координатах (-90 <= широта <= 90 и -180 <= долгота <= 180)')
 	} else {
 		//places.push({'latitude': latitude, 'longitude': longitude})
-		plantData["places"].push({'latitude': latitude, 'longitude': longitude})
+		plantData["places"].push({'Latitude': latitude, 'Longitude': longitude})
 		elemNumber = Math.round(Math.random() * (1000000)) //не очень хорошо
 		placeUL = document.getElementById('placeUL').insertAdjacentHTML('beforeend', '<li> широта: <span id="spanLat'+ elemNumber  +'">'+ latitude  + '</span> долгота: <span id="spanLong' + elemNumber + '">' + longitude + '</span> <button type="button" class="btn btn-link" name="removePlacesButtons" id="removePlace'+ elemNumber +'">удалить</button> </li>')
 		pointsButtons()
@@ -82,6 +78,7 @@ function measuresButtons () {
 			buttonNum = parseInt(removeButton.id.match(/\d+/))
 			plantData["saveMeasure"].forEach(function (measure) {
 				conservName = document.getElementById("conservSpan" + buttonNum).textContent
+				console.log(conservName + ' = ' + measure.SaveName)
 				if (measure.SaveName == conservName) {
 					plantData["saveMeasure"].splice(plantData["saveMeasure"].indexOf(measure), 1) //удаление элемента
 				}
@@ -194,21 +191,21 @@ plantSubmitButton.addEventListener('click', function () {
 	console.log(JSON.stringify(dataInput))
 
 	//POST-запрос на сервер
-	fetch('/newplant', {
-		headers: {
-			'Accept': 'application/json',
-			'Content-Type': 'application/json'
-		},
-		method: 'POST',
-		body: JSON.stringify(dataInput) //формирование JSON
-	}).then((response) => {
-		let dataResp
-		response.text().then(function (respData) {
-			console.log(result)
-		})
-	}).catch((error) => {
-		console.log(error)
-	})
+	// fetch('/newplant', {
+	// 	headers: {
+	// 		'Accept': 'application/json',
+	// 		'Content-Type': 'application/json'
+	// 	},
+	// 	method: 'POST',
+	// 	body: JSON.stringify(dataInput) //формирование JSON
+	// }).then((response) => {
+	// 	let dataResp
+	// 	response.text().then(function (respData) {
+	// 		console.log(result)
+	// 	})
+	// }).catch((error) => {
+	// 	console.log(error)
+	// })
 })
 
 //POST-запрос на сервер
@@ -228,7 +225,7 @@ function getplant () {
 			let dataResp
 			response.text().then(function (respData) {
 				result = JSON.parse(respData)
-				console.log(result)
+				//console.log(result)
 				resolve(result)
 			})
 		}).catch((error) => {

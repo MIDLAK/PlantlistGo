@@ -1,7 +1,6 @@
 package main
 
 import (
-	"html/template"
 	"net/http"
 	"encoding/json"
 	"GoTest/pkg/models/mysql"
@@ -9,6 +8,8 @@ import (
 	"errors"
 	"GoTest/pkg/models"
 )
+
+//"html/template"
 
 type Previews struct {
 	List	[]*models.PlantPreview
@@ -22,75 +23,23 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Инициализируем срез содержащий пути к файлам
-	// файл home.page.tmpl должен быть *первым* файлом в срезе
-	files := []string{
-		"./ui/html/home.page.html",
-		"./ui/html/base.layout.html",
-		"./ui/html/footer.partial.html",
-        "./ui/html/card.partial.html",
-	}
-
-	//чтение файла из шаблона
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
 	//превью всех таксонов
 	previews, err := app.dbPlantlist.GetPlantsPreview()
 	if err != nil {
 		app.serverError(w, err)
 	}
 
-	//запись шаблона в тело HTTP запроса
-	err = ts.Execute(w, Previews{List: previews})
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	//отображение шаблона
+	render(w, r, "home.page.html", &Previews{List: previews}, app.templateCache)
 }
 
 //обработчик /details
 func (app *application) details(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"./ui/html/details.page.html",
-		"./ui/html/base.layout.html",
-		"./ui/html/footer.partial.html",
-	}
-
-	//чтение файла из шаблона
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	//запись шаблона в тело HTTP запроса
-	err = ts.Execute(w, nil)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	render[any](w, r, "details.page.html", nil, app.templateCache)
 }
 
 //обработчки /about
 func (app *application) about(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"./ui/html/about.page.html",
-		"./ui/html/base.layout.html",
-		"./ui/html/footer.partial.html",
-		"./ui/html/place.partial.html",
-	}
-
-	//чтение файла из шаблона
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
 	//получаем данные, что за растение
 	r.ParseForm()
 	plantName := r.Form.Get("plant-name-add")
@@ -103,37 +52,31 @@ func (app *application) about(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//запись шаблона в тело HTTP запроса
-	err = ts.Execute(w, aboutPlant)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	render(w, r, "about.page.html", aboutPlant, app.templateCache)
 }
 
 //обработчик /model
 func (app *application) model(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"./ui/html/add-or-edit.page.html",
-		"./ui/html/base.layout.html",
-		"./ui/html/footer.partial.html",
-		"./ui/html/place.partial.html",
-	}
-
-	//чтение файла из шаблона
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	//запись шаблона в тело HTTP запроса
-	err = ts.Execute(w, nil)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
+	render[any](w, r, "add-or-edit.page.html", nil, app.templateCache)
 }
+
+//обработчик /edit
+func (app *application) editplant(w http.ResponseWriter, r *http.Request) {
+	//получаем данные, что за растение
+	r.ParseForm()
+	plantName := r.Form.Get("plant-name-edit")
+	app.infoLog.Printf("Запрос данных по таксону <<%v>>", plantName)
+
+	//формирование тела шаблона
+	aboutPlant, err := app.dbPlantlist.GetAboutPlant(plantName)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+
+	render(w, r, "add-or-edit.page.html", aboutPlant, app.templateCache)
+}
+
 
 //структура, соответствующая JSON для обмена
 type PlantDataInput struct {
@@ -268,13 +211,14 @@ func (app *application) getplant(w http.ResponseWriter, r *http.Request) {
 	//формироване ответа
 	var outputData PlantDataOutput
 	aboutPlant, err := app.dbPlantlist.GetAboutPlant(plantNameInput.PlantName)
-	if err != nil {
+	if err != nil || aboutPlant == nil {
 		outputData = PlantDataOutput{Name: "", LatinName: "",
 			Domain: "", Kingdom: "",
 			Department: "", Class: "",
 			Order: "", Family: "",
 			Genus: "", Status: "",
-			Description: "", Publications: []string{""}}
+			Description: "", Publications: []string{""},
+			Places: []Place{}, SaveMeasure: []SM{}}
 	} else {
 		outputData = PlantDataOutput{Name: aboutPlant.Name, LatinName: aboutPlant.LatinName,
 									Domain: aboutPlant.Domain, Kingdom: aboutPlant.Kingdom,
@@ -296,96 +240,4 @@ func (app *application) getplant(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(outputData)
-
 }
-
-//обработчик /edit
-func (app *application) editplant(w http.ResponseWriter, r *http.Request) {
-	files := []string{
-		"./ui/html/add-or-edit.page.html",
-		"./ui/html/base.layout.html",
-		"./ui/html/footer.partial.html",
-		"./ui/html/place.partial.html",
-	}
-
-	//чтение файла из шаблона
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	//получаем данные, что за растение
-	r.ParseForm()
-	plantName := r.Form.Get("plant-name-edit")
-	app.infoLog.Printf("Запрос данных по таксону <<%v>>", plantName)
-
-	//формирование тела шаблона
-	aboutPlant, err := app.dbPlantlist.GetAboutPlant(plantName)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	//запись шаблона в тело HTTP запроса
-	err = ts.Execute(w, aboutPlant)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-}
-
-//обработчик /updateplant (только для POST-запроса)
-// func (app *application) updateplant(w http.ResponseWriter, r *http.Request) {
-// 	//добавление (обновление) таксона
-// 	//если кто-то просто пытается перейти по /newpalnt
-// 	if r.Method != http.MethodPost {
-// 		w.Header().Set("Allow", http.MethodPost)
-// 		app.clientError(w, http.StatusMethodNotAllowed)
-// 		return
-// 	}
-
-// 	//получение данных
-// 	var plantDataInput PlantDataInput
-// 	err := json.NewDecoder(r.Body).Decode(&plantDataInput)
-// 	if err != nil {
-// 		app.serverError(w, err)
-// 	}
-
-// 	//расшифровка полученных данных
-// 	sys :=  mysql.Systematic {Domain: plantDataInput.Domain, Kingdom: plantDataInput.Kingdom,
-// 							  Class: plantDataInput.Class, Order: plantDataInput.Order, 
-// 							  Family: plantDataInput.Family, Genus: plantDataInput.Genus,
-// 							  Department: plantDataInput.Department}
-// 	var places []mysql.GPS
-// 	for _, elem := range plantDataInput.Places {
-// 		latitude, err := strconv.ParseFloat(elem.Latitude, 64);
-// 		if err != nil {
-// 			app.serverError(w, err)
-// 		}
-// 		longitude, err := strconv.ParseFloat(elem.Longitude, 64);
-// 		if err != nil {
-// 			app.serverError(w, err)
-// 		}
-// 		places = append(places, mysql.GPS{Latitude: latitude, Longitude: longitude})
-// 	}
-// 	var saveMeasures []mysql.SaveMeasure
-// 	for _, elem := range plantDataInput.SaveMeasure {
-// 		saveMeasures = append(saveMeasures, mysql.SaveMeasure{Name: elem.SaveName, Description: elem.Description, 
-// 						 Start: elem.StartDate, End: elem.EndDate})
-// 	}
-
-// 	//добавление (обновление) таксона
-// 	err = app.dbPlantlist.UpdatePlant(sys, plantDataInput.Status, plantDataInput.Description,
-// 									   plantDataInput.Publications, places, saveMeasures,
-// 									   plantDataInput.Name, plantDataInput.LatinName)
-// 	if err != nil {
-// 		if errors.Is(err, mysql.ErrNoRecord) {
-// 			app.notFound(w)
-// 		} else {
-// 			app.serverError(w, err)
-// 		}
-// 	} else {
-// 		app.infoLog.Printf("Обновлена информация о таксоне <<%v>>", plantDataInput.Name)
-// 	}
-// }
