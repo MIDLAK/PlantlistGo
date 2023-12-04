@@ -3,7 +3,6 @@
 
 main()
 plantData = main()
-//console.log(plantData.Promise)
 
 async function main () {
 	return plantData = await getplant()
@@ -12,11 +11,9 @@ async function main () {
 
 //добавление публикации в список
 const publicationAddButton = document.getElementById('publicationsButton')
-// let publications = []
 publicationAddButton.addEventListener('click', function () {
 	//публикации (список)
 	publication = document.getElementById('publications').value
-	// publications.push(publication)
 	plantData.publications.push(publication)
 	elemNumber = Math.round(Math.random() * (1000000)) //не очень хорошо
 	publicationsUL = document.getElementById('publicationsUL').insertAdjacentHTML('beforeend', '<li id="pubLi' + elemNumber + '"> <span id="pubSpan' + elemNumber  +'">'+ publication + '</span> <button type="button" class="btn btn-link" name="removePublicationsButtons" id="removePublication' + elemNumber + '">удалить</button> </li>')
@@ -25,7 +22,6 @@ publicationAddButton.addEventListener('click', function () {
 
 //добавление меры сохранения вида
 const saveMeasureButton = document.getElementById('saveMeasureButton')
-// let measures = []
 saveMeasureButton.addEventListener('click', function () {
 	saveName = document.getElementById('saveName').value
 	saveDescription = document.getElementById('saveDescription').value
@@ -51,11 +47,7 @@ saveMeasureButton.addEventListener('click', function () {
 
 //добавление места обитания
 const placeButton = document.getElementById('placeButton')
-//let places = []
 placeButton.addEventListener('click', function () {
-	// country = document.getElementById('country').value
-	// city = document.getElementById('city').value
-	// locality = document.getElementById('locality').value
 	latitude = document.getElementById('gpsLatitude').value
 	longitude = document.getElementById('gpsLongitude').value
 	if (Math.abs(latitude) > 90 || Math.abs(longitude) > 180){
@@ -155,14 +147,6 @@ plantSubmitButton.addEventListener('click', function () {
 	family = sysElements[5].value
 	genus = sysElements[6].value
 
-	// system = {"domain": domain,
-	// 		  "kingdom": kingdom,
-	// 		  "department": department,
-	// 		  "class": plantClass,
-	// 		  "order": order,
-	// 		  "family": family,
-	// 		  "genus": genus}
-
 	//описание
 	description = document.getElementById('plantDescription').value
 
@@ -190,22 +174,22 @@ plantSubmitButton.addEventListener('click', function () {
 
 	console.log(JSON.stringify(dataInput))
 
-	//POST-запрос на сервер
-	// fetch('/newplant', {
-	// 	headers: {
-	// 		'Accept': 'application/json',
-	// 		'Content-Type': 'application/json'
-	// 	},
-	// 	method: 'POST',
-	// 	body: JSON.stringify(dataInput) //формирование JSON
-	// }).then((response) => {
-	// 	let dataResp
-	// 	response.text().then(function (respData) {
-	// 		console.log(result)
-	// 	})
-	// }).catch((error) => {
-	// 	console.log(error)
-	// })
+	//POST запрос на сервер
+	fetch('/newplant', {
+		headers: {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		},
+		method: 'POST',
+		body: JSON.stringify(dataInput) //формирование JSON
+	}).then((response) => {
+		let dataResp
+		response.text().then(function (respData) {
+			console.log(result)
+		})
+	}).catch((error) => {
+		console.log(error)
+	})
 })
 
 //POST-запрос на сервер
