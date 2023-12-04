@@ -9,10 +9,9 @@ import (
 	"GoTest/pkg/models"
 )
 
-//"html/template"
-
 type Previews struct {
-	List	[]*models.PlantPreview
+	List		[]*models.PlantPreview
+	AdminMode	bool	
 }
 
 //обработчик /
@@ -29,8 +28,17 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, err)
 	}
 
+	//кнопка администратора
+	r.ParseForm()
+	adminForm := r.Form.Get("iadmin")
+	isAdmin := false
+	if adminForm == "yes" {
+		isAdmin = true
+		app.infoLog.Print("Режим администратора")
+	}
+
 	//отображение шаблона
-	render(w, r, "home.page.html", &Previews{List: previews}, app.templateCache)
+	render(w, r, "home.page.html", &Previews{List: previews, AdminMode: isAdmin}, app.templateCache)
 }
 
 //обработчик /details

@@ -5,7 +5,59 @@
 {{define "main"}}
     <div class="container">
         <div class="row row-cols-1 row-cols-md-4 g-4">
-            {{range .List}} {{template "card" .}} {{end}}
+            {{if  .AdminMode }}
+            {{range $i, $a := .List}}      
+            <div class="col">
+                <div class="card border-success mb-3 h-100" style="max-width: 18rem;">
+                  <img src="/static/img/deciduous_tree.svg" alt="" class="card-img-top">
+                  <!-- <div class="card-header">Header</div> -->
+                  <div class="card-body text-success truncate">
+                      <h5 class="card-title" id="{{ $a.Name }}">{{ $a.Name }}</h5>
+                      <p class="card-text">{{ $a.Description }}</p>
+                  </div>
+        
+                  <div class="card-footer">
+                    <div class="btn-wrapper text-center d-flex justify-content-between">
+                      <form action="/about" method="post">
+                        <!-- <a href="/about" class="btn btn-primary  btn-sm">Подробнее</a> -->
+                        <!-- на сервер отправляется имя таксона для подстановки в форму -->
+                        <button class="btn btn-primary btn-sm" name="plant-name-add" value="{{ $a.Name }}" type="submit" id="aboutButton">Подробнее</button>
+                      </form>
+        
+                      <form action="/edit" method="post">
+                        <!-- <a href="/about" class="btn btn-primary  btn-sm">Подробнее</a> -->
+                        <!-- на сервер отправляется имя таксона для подстановки в форму -->
+                        <button class="btn btn-outline-warning btn-sm" name="plant-name-edit" value="{{ $a.Name }}" type="submit" id="editButton">Редактировать</button>
+                      </form>
+                    </div>            
+                  </div>
+                </div>
+              </div> 
+              {{end}}
+              {{else}}
+                {{range $i, $a := .List}}      
+                    <div class="col">
+                        <div class="card border-success mb-3 h-100" style="max-width: 18rem;">
+                        <img src="/static/img/deciduous_tree.svg" alt="" class="card-img-top">
+                        <!-- <div class="card-header">Header</div> -->
+                        <div class="card-body text-success truncate">
+                            <h5 class="card-title" id="{{ $a.Name }}">{{ $a.Name }}</h5>
+                            <p class="card-text">{{ $a.Description }}</p>
+                        </div>
+                
+                        <div class="card-footer">
+                            <div class="btn-wrapper text-center d-flex justify-content-between">
+                            <form action="/about" method="post">
+                                <!-- <a href="/about" class="btn btn-primary  btn-sm">Подробнее</a> -->
+                                <!-- на сервер отправляется имя таксона для подстановки в форму -->
+                                <button class="btn btn-primary btn-sm" name="plant-name-add" value="{{ $a.Name }}" type="submit" id="aboutButton">Подробнее</button>
+                            </form>
+                            </div>            
+                        </div>
+                    </div>
+                </div> 
+                {{end}}
+              {{end}}
         </div>
     </div>
 {{end}}
